@@ -2,6 +2,7 @@ import os
 import streamlit as st
 from collections import deque
 from embedchain import App
+from tenacity import retry, wait_random_exponential, stop_after_attempt
 
 # Set the OpenAI API key
 @st.cache(allow_output_mutation=True)
@@ -18,15 +19,20 @@ with st.sidebar.form(key='api_key_form'):
     if submitted:
         set_api_key(api_key)
 
+# Retry mechanism
+@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
+def add_resource(app, type, url):
+    app.add(type, url)
+
 # If the API key is entered, display the chat interface
 if os.getenv("OPENAI_API_KEY"):
     # Create the patent chatbot
     pat_chat_bot = App()
 
     # Add online resources
-    # pat_chat_bot.add("youtube_video", "https://www.youtube.com/watch?v=<patent_related_video>")
-    pat_chat_bot.add("pdf_file", "https://www.uspto.gov/web/offices/pac/mpep/consolidated_laws.pdf")
-    # pat_chat_bot.add("web_page", "https://www.uspto.gov/patents")
+    # add_resource(pat_chat_bot, "youtube_video", "https://www.youtube.com/watch?v=<patent_related_video>")
+    add_resource(pat_chat_bot, "pdf_file", "https://www.uspto.gov/web/offices/pac/mpep/consolidated_laws.pdf")
+    # add_resource(pat_chat_bot, "web_page", "https://www.uspto.gov/patents")
 
     # Add local resources
     pat_chat_bot.add_local("qna_pair", ("What is a utility patent?", "A utility patent is a patent that covers the creation of a new or improved—and useful—product, process, or machine. It generally permits its owner to exclude others from making, using, or selling the invention for a period of up to twenty years from the date of patent application filing, subject to the payment of maintenance fees."))
