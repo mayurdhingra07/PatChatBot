@@ -2,11 +2,16 @@ import os
 from embedchain import App
 import streamlit as st
 
-# Prompt the user to enter their OpenAI API key
-api_key = st.text_input('Enter your OpenAI API key', type='password')
+# Create a form for the API key
+with st.form(key='api_key_form'):
+    # Prompt the user to enter their OpenAI API key
+    api_key = st.text_input('Enter your OpenAI API key', type='password')
+    # Create a submit button for the form
+    submitted = st.form_submit_button('Enter')
 
-# Set the OpenAI API key if it's entered
-if api_key:
+# If the form has been submitted, process the API key
+if submitted and api_key:
+    # Set the OpenAI API key
     os.environ["OPENAI_API_KEY"] = api_key
 
     # Create the patent chatbot
