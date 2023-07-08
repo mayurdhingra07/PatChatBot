@@ -1,3 +1,4 @@
 streamlit
 embedchain
 tenacity
+collections
