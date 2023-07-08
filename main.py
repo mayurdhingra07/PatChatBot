@@ -8,9 +8,6 @@ from embedchain import App
 def set_api_key(api_key):
     os.environ["OPENAI_API_KEY"] = api_key
 
-# Logo of the company
-st.image("https://raw.githubusercontent.com/mayurdhingra07/SummarizeItPatent/main/Logo_-_High_Quality-removebg-e1591864365270-300x50.png")
-
 # Set the title in the middle of the page
 st.title("Your Patent Guide to U.S. Law")
 
