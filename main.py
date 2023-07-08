@@ -9,7 +9,7 @@ def set_api_key(api_key):
     os.environ["OPENAI_API_KEY"] = api_key
 
 # Set the title in the middle of the page
-st.title("Your Patent Guide to U.S. Law")
+st.title("US Patent Law Bot")
 
 # Sidebar form for API key
 with st.sidebar.form(key='api_key_form'):
