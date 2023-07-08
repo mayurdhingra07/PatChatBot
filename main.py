@@ -1,19 +1,28 @@
 import os
-from embedchain import App
 import streamlit as st
+from collections import deque
+from embedchain import App
 
-# Create a form for the API key
-with st.form(key='api_key_form'):
-    # Prompt the user to enter their OpenAI API key
-    api_key = st.text_input('Enter your OpenAI API key', type='password')
-    # Create a submit button for the form
-    submitted = st.form_submit_button('Enter')
-
-# If the form has been submitted, process the API key
-if submitted and api_key:
-    # Set the OpenAI API key
+# Set the OpenAI API key
+@st.cache(allow_output_mutation=True)
+def set_api_key(api_key):
     os.environ["OPENAI_API_KEY"] = api_key
 
+# Logo of the company
+st.image("https://raw.githubusercontent.com/mayurdhingra07/SummarizeItPatent/main/Logo_-_High_Quality-removebg-e1591864365270-300x50.png")
+
+# Set the title in the middle of the page
+st.title("Your Patent Guide to U.S. Law")
+
+# Sidebar form for API key
+with st.sidebar.form(key='api_key_form'):
+    api_key = st.text_input('Enter your OpenAI API key', value="", type="password")
+    submitted = st.form_submit_button('Enter')
+    if submitted:
+        set_api_key(api_key)
+
+# If the API key is entered, display the chat interface
+if os.getenv("OPENAI_API_KEY"):
     # Create the patent chatbot
     pat_chat_bot = App()
 
@@ -25,8 +34,20 @@ if submitted and api_key:
     # Add local resources
     pat_chat_bot.add_local("qna_pair", ("What is a utility patent?", "A utility patent is a patent that covers the creation of a new or improved—and useful—product, process, or machine. It generally permits its owner to exclude others from making, using, or selling the invention for a period of up to twenty years from the date of patent application filing, subject to the payment of maintenance fees."))
 
-    # Query the chatbot
-    st.write(pat_chat_bot.query("What is a utility patent?"))
+    # Create the chat interface
+    st.markdown("**Chat Interface**")
+    user_input = st.text_input("Type your question here...")
 
-    # Interact with the chatbot
-    st.write(pat_chat_bot.chat("What is a patent?"))
+    # Get or initialize chat history
+    if 'chat_history' not in st.session_state:
+        st.session_state.chat_history = deque([], maxlen=5)
+
+    if st.button("Send"):
+        response = pat_chat_bot.chat(user_input)
+        st.session_state.chat_history.appendleft((user_input, response))
+
+    # Display the chat history
+    for user_msg, bot_msg in st.session_state.chat_history:
+        st.markdown(f"> **User**: {user_msg}\n> **Bot**: {bot_msg}")
+else:
+    st.write("Please enter your OpenAI API key to continue.")
